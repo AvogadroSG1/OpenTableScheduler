@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using Peter.OpenTable.Models;
 
 namespace Peter.OpenTable.Models
 {
@@ -236,6 +237,10 @@ namespace Peter.OpenTable.Models
         public bool TestRestaurant { get; set; }
     }
 
+}
+
+namespace Peter.OpenTable.RequestModels
+{
     public class OpenTableRestaurantQueryResponse
     {
         [JsonPropertyName("items")]
@@ -265,19 +270,19 @@ namespace Peter.OpenTable.Models
     public class OpenTableAPIResponseBase
     {
         [JsonPropertyName("availability")]
-        public Availability? Availability { get; set; }
+        public Availability Availability { get; set; }
 
         [JsonPropertyName("sameDayAvailability")]
-        public SameDayAvailability? SameDayAvailability { get; set; }
+        public SameDayAvailability SameDayAvailability { get; set; }
 
         [JsonPropertyName("multiDaysAvailability")]
-        public MultiDaysAvailability? MultiDaysAvailability { get; set; }
+        public MultiDaysAvailability MultiDaysAvailability { get; set; }
 
         [JsonPropertyName("noAvailabilityRestaurants")]
-        public NoAvailabilityRestaurants? NoAvailabilityRestaurants { get; set; }
+        public NoAvailabilityRestaurants NoAvailabilityRestaurants { get; set; }
 
         [JsonPropertyName("noTimesReason")]
-        public NoTimesReason? NoTimesReason { get; set; }
+        public NoTimesReason NoTimesReason { get; set; }
     }
 
     public class OpenTableAutoCompleteQuery
@@ -303,5 +308,4 @@ namespace Peter.OpenTable.Models
         public string availabilityToken { get; set; } = null;
         public string correlationId { get; set; } = null;
     }
-
 }

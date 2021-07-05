@@ -5,25 +5,20 @@ using System.Threading.Tasks;
 using System.Text.Json;
 
 using System.Text;
-//using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 using Peter.Google.Gmail;
 using Peter.OpenTable.Models;
 using System.Linq;
+using Peter.OpenTable.RequestModels;
 
 namespace Peter.OpenTable
 {
     class Program
     {
-        // static OpenTableRequest OpenTableRequest { get; set; }
-
         private static readonly HttpClient client = new HttpClient();
         private static readonly GmailSupport GmailSupport = new GmailSupport();
         private static OpenTableReservationRequest OpenTableReservationRequest { get; set; }
-
-        private string OpenTableFindRequest = "https://www.opentable.com/widget/reservation/restaurant-search?query=fireston&pageSize=100";
 
         async static Task Main(string[] args)
         {
@@ -101,8 +96,6 @@ namespace Peter.OpenTable
             message = $"Same Day Times: {sameDayTime}\r\n\r\nNext Available Time: {nextTime}\r\n\r\nI'll check again in a little bit and let you know my findings.";
             GmailSupport.SetMessage("kendralaster34@gmail.com", "Open Table Request Information", message);
             await GmailSupport.SendMail();
-
-            Console.WriteLine(message);
         }
 
         async static Task<int> makeRestaurantFindRequest(string search)
