@@ -53,7 +53,10 @@ namespace Peter.OpenTable
                     posDate = new DateTime(date[0], date[1], date[2], time[0], time[1], time[2]);
                 }
 
-                int rid = await makeRestaurantFindRequest(args[0]);
+                Console.WriteLine("Search for a restaruant:");
+                string toFind = Console.ReadLine();
+
+                int rid = await makeRestaurantFindRequest(toFind);
 
                 OpenTableReservationRequest = new OpenTableReservationRequest()
                 {
@@ -84,17 +87,22 @@ namespace Peter.OpenTable
                     "application/json"));
 
             var postResponse = await response.Content.ReadAsStringAsync();
+            postResponse = fixKnownIssues(postResponse);
             var reservationJson = JsonSerializer.Deserialize<OpenTableAPIResponseBase>(postResponse);
 
-            string sameDayTime = reservationJson.SameDayAvailability.Times.FirstOrDefault()?.TimeString ?? "None";
-            var nextTimeObject = reservationJson.MultiDaysAvailability.Timeslots.FirstOrDefault();
-            string nextTime = $"{nextTimeObject?.Date} @ {nextTimeObject.Times.FirstOrDefault().TimeString ?? string.Empty}";
+            string message = string.Empty;
+            List<Time> times = reservationJson.Availability?.Times ?? reservationJson?.SameDayAvailability?.Times ?? new List<Time>();
+            string sameDayTime = string.Join(", ", times?.Select(t => $"{t.DateTime.Date.ToShortDateString()}: {t.TimeString}")) ?? "None";
+            var nextTimeObject = reservationJson?.MultiDaysAvailability?.Timeslots?.FirstOrDefault();
+            string nextTime = nextTimeObject != null ?
+            $"{nextTimeObject?.Date} @ {string.Join(",", nextTimeObject.Times.Select(t => t.TimeString)) ?? string.Empty}"
+            : "No other times listed.";
 
-            string subject = $"Same Day Times: {sameDayTime}\r\n\r\nNext Available Time: {nextTime}\r\n\r\nI'll check again in a little bit and let you know my findings.";
-            GmailSupport.SetMessage("avogadrosg1@gmail.com", "OT Information", subject);
+            message = $"Same Day Times: {sameDayTime}\r\n\r\nNext Available Time: {nextTime}\r\n\r\nI'll check again in a little bit and let you know my findings.";
+            GmailSupport.SetMessage("kendralaster34@gmail.com", "Open Table Request Information", message);
             await GmailSupport.SendMail();
 
-            Console.WriteLine(subject);
+            Console.WriteLine(message);
         }
 
         async static Task<int> makeRestaurantFindRequest(string search)
@@ -121,6 +129,23 @@ namespace Peter.OpenTable
 
             return results.Items.ElementAt(choice - 1).Rid;
 
+        }
+
+
+        private static string fixKnownIssues(string jsonString)
+        {
+            Dictionary<string, string> issues = new Dictionary<string, string>();
+            issues.Add("\"noAvailabilityRestaurants\":\"}", "\"noAvailabilityRestaurants\":null}");
+            issues.Add("\"noAvailabilityRestaurants\":\"\"}", "\"noAvailabilityRestaurants\":null}");
+            issues.Add("\"noAvailabilityRestaurants\":\"\"", "\"noAvailabilityRestaurants\":null");
+
+            issues.ToList().ForEach(pair =>
+            {
+                jsonString = jsonString.Replace(pair.Key, pair.Value);
+            }
+            );
+
+            return jsonString;
         }
     }
 

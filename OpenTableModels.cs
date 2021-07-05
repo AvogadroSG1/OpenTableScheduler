@@ -4,18 +4,6 @@ using System.Text.Json.Serialization;
 
 namespace Peter.OpenTable.Models
 {
-    public class OpenTableReservationRequest
-    {
-        //{\"covers\":{0},\"dateTime\":\"{1}\",\"isRedesign\":true,\"availabilityToken\":null,\"correlationId\":\"null\"}
-        public int covers { get; set; }
-        public string dateTime { get; set; }
-
-        [JsonIgnore]
-        public int restuarantID { get; set; }
-        public bool isRedesign { get; set; } = true;
-        public string availabilityToken { get; set; } = null;
-        public string correlationId { get; set; } = null;
-    }
 
     public class SameDayAvailability
     {
@@ -74,7 +62,7 @@ namespace Peter.OpenTable.Models
     public class MultiDaysAvailability
     {
         [JsonPropertyName("nextAvailabilityIndex")]
-        public int NextAvailabilityIndex { get; set; }
+        public int? NextAvailabilityIndex { get; set; }
 
         [JsonPropertyName("time")]
         public string Time { get; set; }
@@ -176,22 +164,15 @@ namespace Peter.OpenTable.Models
         public bool AllowNextAvailable { get; set; }
     }
 
-    public class OpenTableAPIResponseBase
+    public class Availability
     {
-        [JsonPropertyName("sameDayAvailability")]
-        public SameDayAvailability SameDayAvailability { get; set; }
+        [JsonPropertyName("times")]
+        public List<Time> Times { get; set; }
 
-        [JsonPropertyName("multiDaysAvailability")]
-        public MultiDaysAvailability MultiDaysAvailability { get; set; }
-
-        [JsonPropertyName("noAvailabilityRestaurants")]
-        public NoAvailabilityRestaurants NoAvailabilityRestaurants { get; set; }
-
-        [JsonPropertyName("noTimesReason")]
-        public NoTimesReason NoTimesReason { get; set; }
+        [JsonPropertyName("noTimesMessage")]
+        public object NoTimesMessage { get; set; }
     }
 
-    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse); 
     public class Variables
     {
         [JsonPropertyName("term")]
@@ -219,19 +200,6 @@ namespace Peter.OpenTable.Models
         public PersistedQuery PersistedQuery { get; set; }
     }
 
-    public class OpenTableAutoCompleteQuery
-    {
-        [JsonPropertyName("operationName")]
-        public string OperationName { get; set; } = "Autocomplete";
-
-        [JsonPropertyName("variables")]
-        public Variables Variables { get; set; }
-
-        [JsonPropertyName("extensions")]
-        public Extensions Extensions { get; set; }
-    }
-
-    // Root myDeserializedClass = JsonSerializer.Deserialize<Root>(myJsonResponse);
     public class AddressResponse
     {
         [JsonPropertyName("address1")]
@@ -294,5 +262,46 @@ namespace Peter.OpenTable.Models
         public override string ToString() => $"https://www.opentable.com/widget/reservation/restaurant-search?query={query}&pageSize={pageSize}";
     }
 
+    public class OpenTableAPIResponseBase
+    {
+        [JsonPropertyName("availability")]
+        public Availability? Availability { get; set; }
+
+        [JsonPropertyName("sameDayAvailability")]
+        public SameDayAvailability? SameDayAvailability { get; set; }
+
+        [JsonPropertyName("multiDaysAvailability")]
+        public MultiDaysAvailability? MultiDaysAvailability { get; set; }
+
+        [JsonPropertyName("noAvailabilityRestaurants")]
+        public NoAvailabilityRestaurants? NoAvailabilityRestaurants { get; set; }
+
+        [JsonPropertyName("noTimesReason")]
+        public NoTimesReason? NoTimesReason { get; set; }
+    }
+
+    public class OpenTableAutoCompleteQuery
+    {
+        [JsonPropertyName("operationName")]
+        public string OperationName { get; set; } = "Autocomplete";
+
+        [JsonPropertyName("variables")]
+        public Variables Variables { get; set; }
+
+        [JsonPropertyName("extensions")]
+        public Extensions Extensions { get; set; }
+    }
+
+    public class OpenTableReservationRequest
+    {
+        public int covers { get; set; }
+        public string dateTime { get; set; }
+
+        [JsonIgnore]
+        public int restuarantID { get; set; }
+        public bool isRedesign { get; set; } = true;
+        public string availabilityToken { get; set; } = null;
+        public string correlationId { get; set; } = null;
+    }
 
 }
