@@ -30,11 +30,28 @@ namespace Peter.OpenTable
         {
             if ((args?.Length ?? 0) != 3)
             {
+                Console.WriteLine("Search for a restaruant:");
+                string toFind = Console.ReadLine();
+
+                int rid = await makeRestaurantFindRequest(toFind);
+
+                Console.WriteLine("How many People in this reservation: ");
+                int covers = Convert.ToInt32(Console.ReadLine().Trim());
+
+                Console.WriteLine("When would you like this reservation (YYYY-MM-DD HH:MM): ");
+                string requestedTime = Console.ReadLine().Trim();
+
+                DateTime posDate;
+                if (!DateTime.TryParse(requestedTime, out posDate))
+                {
+                    throw new Exception("Please enter a correct date format.");
+                }
+
                 OpenTableReservationRequest = new OpenTableReservationRequest()
                 {
-                    restuarantID = 1005595,
+                    restuarantID = rid,
                     covers = 2,
-                    dateTime = new DateTime(2021, 07, 11, 19, 00, 00).ToString("yyyy-MM-ddTHH:mm")
+                    dateTime = posDate.ToString("yyyy-MM-ddTHH:mm")
                 };
             }
             else
@@ -48,10 +65,8 @@ namespace Peter.OpenTable
                     posDate = new DateTime(date[0], date[1], date[2], time[0], time[1], time[2]);
                 }
 
-                Console.WriteLine("Search for a restaruant:");
-                string toFind = Console.ReadLine();
 
-                int rid = await makeRestaurantFindRequest(toFind);
+                int rid = Convert.ToInt32(args[0]);
 
                 OpenTableReservationRequest = new OpenTableReservationRequest()
                 {
@@ -94,7 +109,7 @@ namespace Peter.OpenTable
             : "No other times listed.";
 
             message = $"Same Day Times: {sameDayTime}\r\n\r\nNext Available Time: {nextTime}\r\n\r\nI'll check again in a little bit and let you know my findings.";
-            GmailSupport.SetMessage("kendralaster34@gmail.com", "Open Table Request Information", message);
+            GmailSupport.SetMessage("avogadrosg1@gmail.com", "Open Table Request Information", message);
             await GmailSupport.SendMail();
         }
 
